@@ -7,7 +7,7 @@ class App extends Component {
     super(props);
     this.state = {
       breakLength: 5,
-      sessionLength: 25,
+      sessionLength: 205,
       timeLeft: 1500,
       timerLabel: "session",
       oneMinLeft: true,
