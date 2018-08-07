@@ -7,108 +7,64 @@ class App extends Component {
     super(props);
     this.state = {
       breakLength: 5,
-      sessionLength: 205,
+      sessionLength: 25,
       timeLeft: 1500,
       timerLabel: "session",
       oneMinLeft: true,
       countdownSession: true,
-      pause: true
+      pause: true,
+      interval: null
     };
+
+    this.playPause = this.playPause.bind(this);
+
     this.incrementBreak = this.incrementBreak.bind(this);
     this.decrementBreak = this.decrementBreak.bind(this);
     this.incrementSession = this.incrementSession.bind(this);
     this.decrementSession = this.decrementSession.bind(this);
     this.reset = this.reset.bind(this);
-    this.playPause = this.playPause.bind(this);
-    this.countdown = this.countdown.bind(this);
-    this.millisToMinSec = this.millisToMinSec.bind(this);
-    this.splitToMS = this.splitToMS.bind(this);
-    this.startTimer = this.startTimer.bind(this);
-    this.playAudio = this.playAudio.bind(this);
-    this.clockify = this.clockify.bind(this);
-
-    // let timer = "";
-  }
-
-  startTimer() {
-    this.timer = setInterval(this.countdown, 1000);
-  }
-
-  pauseTimer() {
-    clearInterval(this.timer);
-  }
-
-  playAudio() {
-    const audio = document.getElementById("beep");
-    audio.play();
-    console.log("play sound");
-    // const breakSound = new Audio(
-    //   "http://www.orangefreesounds.com/wp-content/uploads/2018/03/Meditation-bell-sound.mp3?_=1"
-    // );
-    // const sessionSound = new Audio(
-    //   "http://sampleswap.org/samples-ghost/DRUMS%20(FULL%20KITS)/Hip%20Hop%20Specialty%20Kit/296[kb]say-bow-beep.wav.mp3"
-    // );
-    // this.state.countdownSession ? breakSound.play() : sessionSound.play();
   }
 
   playPause() {
-    this.state.pause ? this.startTimer() : this.pauseTimer();
-
-    this.setState({ pause: !this.state.pause });
-  }
-
-  countdown() {
-    const breakTime = this.state.breakLength * 60;
-    const sessionTime = this.state.sessionLength * 60;
-    console.log(this.clockify());
-
-    if (this.state.timeLeft == 0) {
-      document.getElementById("beep").play();
-      if (this.state.countdownSession) {
-        //this.playAudio();
-        this.setState({
-          countdownSession: !this.state.countdownSession,
-          timeLeft: breakTime,
-          timerLabel: "break"
-        });
-      } else {
-        //this.playAudio();
-        this.setState({
-          countdownSession: !this.state.countdownSession,
-          timeLeft: sessionTime,
-          timerLabel: "session"
-        });
-      }
+    let interval = null;
+    if (this.state.interval) {
+      interval = clearInterval(this.state.interval);
     } else {
-      const setTime = this.state.timeLeft;
-      // const convertToMS = parseInt(setTime * 60000);
-      this.setState({ timeLeft: setTime - 1 });
+      interval = setInterval(() => {
+        if (this.state.timeLeft > 0) {
+          this.setState({ timeLeft: this.state.timeLeft - 1, pause: false });
+        } else {
+          document.getElementById("beep").play();
+          this.state.countdownSession
+            ? this.setState({
+                timeLeft: this.state.breakLength * 60,
+                countdownSession: !this.state.countdownSession,
+                timerLabel: "break",
+                pause: false
+              })
+            : this.setState({
+                timeLeft: this.state.sessionLength * 60,
+                countdownSession: !this.state.countdownSession,
+                timerLabel: "session",
+                pause: false
+              });
+        }
+      }, 1000);
     }
-  }
-
-  millisToMinSec(millis) {
-    const mins = Math.floor(millis / 60);
-    const sec = (millis % 60).toFixed(0);
-    return (mins < 10 ? "0" : "") + mins + ":" + (sec < 10 ? "0" : "") + sec;
-  }
-
-  splitToMS(time) {
-    const timeSplit = time.split(":");
-    return parseInt(timeSplit[0]) * 60000 + parseInt(timeSplit[1]) * 1000;
+    this.setState({ interval, pause: !this.state.pause });
   }
 
   reset() {
-    clearInterval(this.timer);
     document.getElementById("beep").pause();
     document.getElementById("beep").currentTime = 0;
-    // audio.pause();
 
-    // audio.currentTime = 0;
     this.setState({
       breakLength: 5,
       sessionLength: 25,
       timeLeft: 1500,
-      timerLabel: "session"
+      timerLabel: "session",
+      interval: clearInterval(this.state.interval),
+      countdownSession: true
     });
   }
   incrementBreak() {
@@ -118,8 +74,8 @@ class App extends Component {
   }
 
   decrementBreak() {
-    const curValUp = this.state.breakLength - 1;
-    curValUp > 0 && this.setState({ breakLength: curValUp });
+    const curValDown = this.state.breakLength - 1;
+    curValDown > 0 && this.setState({ breakLength: curValDown });
   }
 
   incrementSession() {
@@ -132,20 +88,12 @@ class App extends Component {
       });
   }
 
-  clockify(secs) {
-    let minutes = Math.floor(secs / 60);
-    let seconds = secs - minutes * 60;
-    seconds = seconds < 10 ? "0" + seconds : seconds;
-    minutes = minutes < 10 ? "0" + minutes : minutes;
-    return minutes + ":" + seconds;
-  }
-
   decrementSession() {
-    const curValUp = this.state.sessionLength - 1;
-    const timeLeft = curValUp * 60;
-    curValUp > 0 &&
+    const curValDown = this.state.sessionLength - 1;
+    const timeLeft = curValDown * 60;
+    curValDown > 0 &&
       this.setState({
-        sessionLength: curValUp,
+        sessionLength: curValDown,
         timeLeft: timeLeft
       });
   }
@@ -177,8 +125,6 @@ class App extends Component {
     );
   }
 }
-
-export default App;
 
 class Break extends Component {
   render() {
@@ -228,26 +174,26 @@ class Session extends Component {
 
 class Timer extends Component {
   render() {
+    let minutes = Math.floor(this.props.timeLeft / 60);
+    let seconds = this.props.timeLeft - minutes * 60;
+    seconds = seconds < 10 ? "0" + seconds : seconds;
+    minutes = minutes < 10 ? "0" + minutes : minutes;
+    const timeAvail = minutes + ":" + seconds;
+
     return (
       <div id="timerBox">
         <div id="timer-label">{this.props.timerLabel}</div>
-        <div id="time-left">
-          {this.props.clockify(this.props.timeLeft)}
-          {/* {this.props.millisToMinSec(this.props.timeLeft)} */}
-        </div>
+        <div id="time-left">{timeAvail}</div>
         <div id="start_stop" onClick={this.props.playPause}>
           ⏯
         </div>
         <div id="reset" onClick={this.props.reset}>
           reset
         </div>
-        <audio
-          // src="http://www.orangefreesounds.com/wp-content/uploads/2018/03/Meditation-bell-sound.mp3?_=1"
-          src="https://goo.gl/65cBl1"
-          id="beep"
-          preload="auto"
-        />
+        <audio src="https://goo.gl/65cBl1" id="beep" preload="auto" />
       </div>
     );
   }
 }
+
+export default App;
