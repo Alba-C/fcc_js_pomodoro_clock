@@ -1,82 +1,198 @@
+@import url("https://fonts.googleapis.com/css?family=Lato|Roboto+Mono|Nova+Square");
+
 .App {
   text-align: center;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
+  font-family: "Lato", sans-serif;
+  font-family: "Nova Square", cursive;
+  color: #2c363f;
+  padding: 50px;
+  background-color: honeydew;
+  min-height: 100vh;
+  min-width: 400px;
 }
 
+#header {
+  font-family: "Lato", sans-serif;
+  font-size: 3.5em;
+}
 #clockWrapper {
-  margin-top: 20vh;
-  width: 35%;
-  background-color: bisque;
-  border: solid black 2px;
+  min-width: 35%;
+  /* max-width: 75%; */
+  border-radius: 25px;
   padding: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template: 40% 50%;
+  grid-gap: 10px;
+  grid-template-areas:
+    "breakBox sessionBox"
+    "timerBox timerBox";
+  box-shadow: inset 0 0 2px 1px rgba(14, 13, 13, 0.397),
+    2px 2px 50px 1px rgba(14, 13, 13, 0.397);
+}
+
+.clockBackground {
+  background-color: #587b7f;
 }
 #breakBox {
-  background-color: aqua;
+  grid-area: breakBox;
+  background-color: honeydew;
+
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  border-radius: 25px 5px 5px 5px;
+  padding: 10px;
 }
 #break-label,
 #session-label {
-  color: red;
   font-size: 1.5em;
+  width: 100%;
 }
 #break-length,
 #session-length {
   font-size: 3em;
-  color: green;
+  font-family: "Roboto Mono", monospace;
 }
 
 #sessionBox {
-  background-color: cornflowerblue;
-}
+  grid-area: sessionBox;
+  background-color: honeydew;
 
-.increment {
-  background-color: yellowgreen;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  box-shadow: inset 0 0 15px 1px rgb(112, 165, 7),
-    0 0 1px 1px rgba(153, 205, 50, 0.507);
-}
-
-.increment::before {
-  content: "+";
-  color: white;
-  font-size: 2em;
-}
-
-.decrement {
-  background-color: tomato;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  box-shadow: inset 0 0 15px 1px rgb(219, 45, 15),
-    0 0 2px 1px rgba(255, 99, 71, 0.507);
-}
-
-.decrement::before {
-  content: "-";
-  color: white;
-  font-size: 2em;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  border-radius: 5px 25px 5px 5px;
+  padding: 10px;
 }
 
 #timerBox {
+  grid-area: timerBox;
   background-color: honeydew;
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  grid-template-areas: "startStop timerLabel reset";
+  border-radius: 5px 5px 25px 25px;
+}
+
+.increment {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 3em;
+  color: #3cdbd3;
+}
+
+.decrement {
+  color: #ff8360;
+  font-size: 3em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
 }
 
 #start_stop,
 #reset {
-  width: 50px;
+  font-size: 3em;
   padding: 5px 10px;
-  background-color: brown;
   margin: 2px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
+#reset {
+  grid-area: reset;
+  color: #ff8360;
+}
+
+#start_stop {
+  grid-area: startStop;
+}
+
+#reset:active,
+#start_stop:active,
+.increment:active,
+.decrement:active {
+  transform: translateY(2px);
+}
+
+.decrement:active,
+.fa-pause-circle:active,
+.fa-redo-alt:active {
+  box-shadow: inset 0 0 15px 1px #ff8360, 0 0 1px 1px #ff8360;
+  border-radius: 50%;
+}
+
+.increment:active,
+.fa-play-circle:active {
+  border-radius: 50%;
+  box-shadow: inset 0 0 15px 1px #3cdbd3, 0 0 1px 1px #3cdbd3;
+}
+
+.run-animation {
+  animation: 0.75s linear 0s spin;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-120deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.fa-play-circle {
+  color: #3cdbd3;
+}
+
+.fa-pause-circle {
+  color: #ff8360;
+}
 #timer-label {
-  color: aqua;
+  color: #2c363f;
   font-size: 1.5em;
+  grid-area: timerLabel;
 }
 
 #time-left {
   font-size: 3em;
+
+  font-family: "Roboto Mono", monospace;
+}
+
+.sessionBackground {
+  background-color: #f9fbb2;
+  background-color: #392a16;
+  transition: background-color 2s;
+}
+
+.breakBackground {
+  background-color: #a1cca5;
+  background-color: #587b7f;
+  transition: background-color 2s;
+}
+
+.footer {
+  font-family: "Nova Square", cursive;
+  width: 100%;
+  font-size: 1.25em;
+  margin: 100px 0;
+  color: #ff8360;
+  text-align: center;
+  text-shadow: 0 2px 20px rgba(51, 51, 51, 0.514);
+}
+.socialLinks i {
+  font-size: 1.75em;
+  margin: 0px 10px;
+  color: #587b7f;
 }

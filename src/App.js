@@ -6,9 +6,9 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      breakLength: 5,
-      sessionLength: 25,
-      timeLeft: 1500,
+      breakLength: 1,
+      sessionLength: 1,
+      timeLeft: 100,
       timerLabel: "session",
       oneMinLeft: true,
       countdownSession: true,
@@ -49,7 +49,7 @@ class App extends Component {
                 pause: false
               });
         }
-      }, 1000);
+      }, 100);
     }
     this.setState({ interval, pause: !this.state.pause });
   }
@@ -64,7 +64,8 @@ class App extends Component {
       timeLeft: 1500,
       timerLabel: "session",
       interval: clearInterval(this.state.interval),
-      countdownSession: true
+      countdownSession: true,
+      pause: true
     });
   }
   incrementBreak() {
@@ -98,10 +99,35 @@ class App extends Component {
       });
   }
 
+  componentDidMount = () => {
+    let resetBtn = document.getElementById("reset");
+    resetBtn.addEventListener(
+      "click",
+      () => {
+        resetBtn.classList.remove("run-animation");
+        void resetBtn.offsetWidth;
+        resetBtn.classList.add("run-animation");
+      },
+      false
+    );
+  };
+
+  componentWillUpdate = () => {
+    let background = document.getElementById("clockWrapper");
+    if (this.state.timerLabel == "session") {
+      background.classList.add("sessionBackground");
+      background.classList.remove("breakBackground");
+    } else {
+      background.classList.add("breakBackground");
+      background.classList.remove("sessionBackground");
+    }
+  };
+
   render() {
     return (
       <div className="App">
-        <div id="clockWrapper">
+        <Header />
+        <div id="clockWrapper" className="clockBackground">
           <Break
             breakLength={this.state.breakLength}
             incrementBreak={this.incrementBreak}
@@ -117,14 +143,18 @@ class App extends Component {
             timeLeft={this.state.timeLeft}
             reset={this.reset}
             playPause={this.playPause}
-            millisToMinSec={this.millisToMinSec}
-            clockify={this.clockify}
+            pause={this.state.pause}
           />
         </div>
+        <Footer />
       </div>
     );
   }
 }
+
+const Header = () => {
+  return <h1 id="header"> FCC | Pomodoro Clock</h1>;
+};
 
 class Break extends Component {
   render() {
@@ -138,12 +168,16 @@ class Break extends Component {
           id="break-decrement"
           className="decrement"
           onClick={this.props.decrementBreak}
-        />
+        >
+          <i className="fas fa-chevron-circle-down" />
+        </div>
         <div
           id="break-increment"
           className="increment"
           onClick={this.props.incrementBreak}
-        />
+        >
+          <i className="fas fa-chevron-circle-up" />
+        </div>
       </div>
     );
   }
@@ -161,12 +195,16 @@ class Session extends Component {
           id="session-decrement"
           className="decrement"
           onClick={this.props.decrementSession}
-        />
+        >
+          <i className="fas fa-chevron-circle-down" />
+        </div>
         <div
           id="session-increment"
           className="increment"
           onClick={this.props.incrementSession}
-        />
+        >
+          <i className="fas fa-chevron-circle-up" />
+        </div>
       </div>
     );
   }
@@ -182,15 +220,59 @@ class Timer extends Component {
 
     return (
       <div id="timerBox">
-        <div id="timer-label">{this.props.timerLabel}</div>
-        <div id="time-left">{timeAvail}</div>
+        <div id="timer-label">
+          {this.props.timerLabel}
+          {this.props.timeLeft < 60 ? (
+            <div id="time-left" style={{ color: "#ff8360" }}>
+              {timeAvail}
+            </div>
+          ) : (
+            <div id="time-left">{timeAvail}</div>
+          )}
+        </div>
+
         <div id="start_stop" onClick={this.props.playPause}>
-          ⏯
+          {this.props.pause ? (
+            <i className="fas fa-play-circle" />
+          ) : (
+            <i className="fas fa-pause-circle" />
+          )}
         </div>
         <div id="reset" onClick={this.props.reset}>
-          reset
+          <i className="fas fa-redo-alt" />
         </div>
         <audio src="https://goo.gl/65cBl1" id="beep" preload="auto" />
+      </div>
+    );
+  }
+}
+
+class Footer extends React.Component {
+  render() {
+    return (
+      <div className="footer">
+        <div className="socialLinks">
+          <a href="https://github.com/REAOrlando" target="_blank">
+            <i className="fab fa-github" />
+          </a>
+
+          <a
+            href="https://www.linkedin.com/in/christopheralbanesefl/"
+            target="_blank"
+          >
+            <i className="fab fa-linkedin" />
+          </a>
+
+          <a href="https://twitter.com/albanesechris" target="_blank">
+            <i className="fab fa-twitter" />
+          </a>
+
+          <a href="https://codepen.io/REAOrlando/" target="_blank">
+            <i className="fab fa-codepen" />
+          </a>
+        </div>
+
+        <p> Created by Christopher Albanese</p>
       </div>
     );
   }
